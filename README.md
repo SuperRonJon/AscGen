@@ -24,7 +24,7 @@ Scaling factor values are floating point values that indicate the amount to scal
 
 Ex. `ascgen --width 0.2 --height 0.1 image.png` will scale the ascii-art output's width down to 20% and height to 10% the original image.png's pixel resolution. This is equivalent to `ascgen -w 0.2 -t 0.1 image.png` using short flags
 
-Ex. `ascgen --invert --scaling 0.015 high-res-image.png` will scale both the height and width of high-res-image.png to 1.5% the original image's pixel resolution. This is equivalent to `ascgen -is 0.015 high-res-image.png`
+Ex. `ascgen --invert --scaling 0.015 high-res-image.png` will scale both the height and width of high-res-image.png to 1.5% the original image's pixel resolution, as well as invert the color scale, so that bright colors to use the densest characters rather than vice-versa. This is equivalent to `ascgen -is 0.015 high-res-image.png`.
 
 ## Example
 ```
