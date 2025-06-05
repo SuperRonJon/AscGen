@@ -40,10 +40,10 @@ fn main() {
     let height_given = height_scaling > 0.0;
     let even_scaling = !width_given && !height_given;
 
-    let ascii_characters: [char; 10] = ['@', '%', '#', '*', '+', '=', '-', ':', '.', ' '];
+    let ascii_characters = ['@', '%', '#', '*', '+', '=', '-', ':', '.', ' '];
 
-    let img_result: Result<DynamicImage, ImageError> = get_image(&filename);
-    let img: DynamicImage = match img_result {
+    let img_result = get_image(&filename);
+    let img = match img_result {
         Ok(file) => file,
         Err(error) => {
             println!("Error opening image file \"{}\": {}", filename, error.to_string());
@@ -74,8 +74,8 @@ fn main() {
 }
 
 fn image_to_string(img: &DynamicImage, character_set: &[char; 10], invert: bool) -> String {
-    let char_count: usize = ((img.width() * img.height()) + img.height()) as usize;
-    let mut result: String = String::with_capacity(char_count);
+    let char_count = ((img.width() * img.height()) + img.height()) as usize;
+    let mut result = String::with_capacity(char_count);
     let mut characters = character_set.clone();
     if invert {
         characters.reverse();
@@ -83,7 +83,7 @@ fn image_to_string(img: &DynamicImage, character_set: &[char; 10], invert: bool)
 
     for pixel in img.pixels() {
         let brightness = get_brightness_value(&pixel.2);
-        let char_index: usize = (brightness / (255.1 / characters.len() as f64)).floor() as usize;
+        let char_index = (brightness / (255.1 / characters.len() as f64)).floor() as usize;
 
         let brightness_char = characters[char_index];
         result.push(brightness_char);
@@ -99,11 +99,11 @@ fn get_image(filename: &String) -> Result<DynamicImage, ImageError> {
 }
 
 fn get_brightness_value(p: &Rgba<u8>) -> f64 {
-    let pr: f64 = 0.299;
-    let pg: f64 = 0.587;
-    let pb: f64 = 0.114;
+    let pr = 0.299;
+    let pg = 0.587;
+    let pb = 0.114;
 
-    let channels: &[u8] = p.channels();
+    let channels = p.channels();
     let red = channels[0] as i32;
     let green = channels[1] as i32;
     let blue = channels[2] as i32;
