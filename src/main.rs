@@ -1,3 +1,5 @@
+use std::{fs::{self}, path::PathBuf};
+
 use clap::Parser;
 use image::{imageops::FilterType::Nearest, DynamicImage, GenericImageView, ImageError, ImageReader, Pixel, Rgba};
 
@@ -19,7 +21,10 @@ struct Args {
     height_scaling: f64,
     /// Even scaling factor for both height & width
     #[arg(short, long, default_value_t = 1.0)]
-    scaling: f64
+    scaling: f64,
+    /// Output file name. If supplied, outputs to file rather than to console.
+    #[arg(short='f', long="file", default_value_t = String::new())]
+    out_file: String
 }
 
 fn main() {
@@ -29,6 +34,7 @@ fn main() {
     let width_scaling = args.width_scaling;
     let height_scaling = args.height_scaling;
     let scaling = args.scaling;
+    let out_file = args.out_file;
 
     let width_given = width_scaling > 0.0;
     let height_given = height_scaling > 0.0;
@@ -59,7 +65,12 @@ fn main() {
     
     let scaled_image = scale_image(img, w_scale, h_scale);
     let str = image_to_string(&scaled_image, &ascii_characters, invert);
-    print!("{}", str);
+    if out_file.is_empty() {
+        print!("{}", str);
+    } else {
+        write_to_file(&out_file, &str);
+        println!("Ascii art written to {}", out_file);
+    }
 }
 
 fn image_to_string(img: &DynamicImage, character_set: &[char; 10], invert: bool) -> String {
@@ -105,4 +116,20 @@ fn scale_image(img: DynamicImage, width_factor: f64, height_factor: f64) -> Dyna
     let new_height = (img.height() as f64 * height_factor) as u32;
 
     return img.resize_exact(new_width, new_height, Nearest);
+}
+
+fn write_to_file(output_file: &String, art_string: &String) {
+    let filepath = PathBuf::from(output_file);
+    let out_dir = filepath.parent().unwrap();
+    if ! fs::exists(out_dir).expect("Error parsing output filepath...") {
+        let create_result = fs::create_dir_all(out_dir);
+        match create_result {
+            Ok(()) => {},
+            Err(error) => {
+                println!("Error creating output directory: {}", error);
+                return;
+            }
+        }
+    }
+    fs::write(filepath.as_path(), art_string).expect("Error writing to file...");
 }
