@@ -16,6 +16,7 @@ Options:
   -w, --width <WIDTH_SCALING>    Width Scaling Factor [default: -1]
   -t, --height <HEIGHT_SCALING>  Height Scaling Factor [default: -1]
   -s, --scaling <SCALING>        Even scaling factor for both height & width [default: 1]
+  -f, --file <OUT_FILE>          Output file name. If supplied, outputs to file rather than to console [default: ]
   -h, --help                     Print help
   -V, --version                  Print version
 ```
