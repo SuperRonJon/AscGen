@@ -63,18 +63,18 @@ fn main() {
 }
 
 fn image_to_string(img: &DynamicImage, character_set: &[char; 10], invert: bool) -> String {
-    let mut character_set_inverse = character_set.clone();
-    character_set_inverse.reverse();
-    let mut result: String = String::from("");
+    let char_count: usize = ((img.width() * img.height()) + img.height()) as usize;
+    let mut result: String = String::with_capacity(char_count);
+    let mut characters = character_set.clone();
+    if invert {
+        characters.reverse();
+    }
 
     for pixel in img.pixels() {
         let brightness = get_brightness_value(&pixel.2);
-        let char_index: usize = (brightness / (255.1 / character_set.len() as f64)).floor() as usize;
+        let char_index: usize = (brightness / (255.1 / characters.len() as f64)).floor() as usize;
 
-        let mut brightness_char = character_set_inverse[char_index];
-        if !invert {
-            brightness_char = character_set[char_index];
-        }
+        let brightness_char = characters[char_index];
         result.push(brightness_char);
         if pixel.0 == img.width() - 1 {
             result.push('\n');
