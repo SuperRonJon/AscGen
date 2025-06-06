@@ -11,7 +11,7 @@ use image::{
 
 /// Ascii Art Generator
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(version, about, long_about = None, disable_help_flag = true)]
 struct Args {
     /// Path to the image file
     #[arg()]
@@ -23,7 +23,7 @@ struct Args {
     #[arg(short='w', long="width", default_value_t = -1.0)]
     width_scaling: f64,
     /// Height Scaling Factor
-    #[arg(short='t', long="height", default_value_t = -1.0)]
+    #[arg(short='h', long="height", default_value_t = -1.0)]
     height_scaling: f64,
     /// Even scaling factor for both height & width
     #[arg(short, long, default_value_t = 1.0)]
@@ -31,6 +31,9 @@ struct Args {
     /// Output file name. If supplied, outputs to file rather than to console.
     #[arg(short='f', long="file", default_value_t = String::new())]
     out_file: String,
+    /// Prints help
+    #[arg(short='H', long="help", action = clap::ArgAction::Help)]
+    help: Option<bool>
 }
 
 fn main() {
