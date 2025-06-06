@@ -1,7 +1,13 @@
-use std::{fs::{self}, path::PathBuf};
+use std::{
+    fs::{self},
+    path::PathBuf,
+};
 
 use clap::Parser;
-use image::{imageops::FilterType::Nearest, DynamicImage, GenericImageView, ImageError, ImageReader, Pixel, Rgba};
+use image::{
+    DynamicImage, GenericImageView, ImageError, ImageReader, Pixel, Rgba,
+    imageops::FilterType::Nearest,
+};
 
 /// Ascii Art Generator
 #[derive(Parser, Debug)]
@@ -24,7 +30,7 @@ struct Args {
     scaling: f64,
     /// Output file name. If supplied, outputs to file rather than to console.
     #[arg(short='f', long="file", default_value_t = String::new())]
-    out_file: String
+    out_file: String,
 }
 
 fn main() {
@@ -46,13 +52,19 @@ fn main() {
     let img = match img_result {
         Ok(file) => file,
         Err(error) => {
-            println!("Error opening image file \"{}\": {}", filename, error.to_string());
+            println!(
+                "Error opening image file \"{}\": {}",
+                filename,
+                error.to_string()
+            );
             return;
         }
     };
 
     if !even_scaling && (width_scaling <= 0.0 || height_scaling <= 0.0) {
-        println!("Invalid scaling parameters.\nIf not using equivalent scaling for height and width (-s) both height and width must be supplied and greater than 0.");
+        println!(
+            "Invalid scaling parameters.\nIf not using equivalent scaling for height and width (-s) both height and width must be supplied and greater than 0."
+        );
         return;
     }
 
@@ -62,7 +74,7 @@ fn main() {
         w_scale = scaling;
         h_scale = scaling;
     }
-    
+
     let scaled_image = scale_image(img, w_scale, h_scale);
     let str = image_to_string(&scaled_image, &ascii_characters, invert);
     if out_file.is_empty() {
@@ -108,7 +120,10 @@ fn get_brightness_value(p: &Rgba<u8>) -> f64 {
     let green = channels[1] as i32;
     let blue = channels[2] as i32;
 
-    return ((pr * (red.pow(2)) as f64) + (pg * (green.pow(2)) as f64) + (pb * (blue.pow(2)) as f64)).sqrt();
+    return ((pr * (red.pow(2)) as f64)
+        + (pg * (green.pow(2)) as f64)
+        + (pb * (blue.pow(2)) as f64))
+        .sqrt();
 }
 
 fn scale_image(img: DynamicImage, width_factor: f64, height_factor: f64) -> DynamicImage {
@@ -121,10 +136,10 @@ fn scale_image(img: DynamicImage, width_factor: f64, height_factor: f64) -> Dyna
 fn write_to_file(output_file: &String, art_string: &String) {
     let filepath = PathBuf::from(output_file);
     let out_dir = filepath.parent().unwrap();
-    if ! fs::exists(out_dir).expect("Error parsing output filepath...") {
+    if !fs::exists(out_dir).expect("Error parsing output filepath...") {
         let create_result = fs::create_dir_all(out_dir);
         match create_result {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 println!("Error creating output directory: {}", error);
                 return;
