@@ -20,17 +20,17 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     invert: bool,
     /// Width Scaling Factor
-    #[arg(short='w', long="width", default_value_t = -1.0)]
-    width_scaling: f64,
+    #[arg(short='w', long="width")]
+    width_scaling: Option<f64>,
     /// Height Scaling Factor
-    #[arg(short='h', long="height", default_value_t = -1.0)]
-    height_scaling: f64,
+    #[arg(short='h', long="height")]
+    height_scaling: Option<f64>,
     /// Even scaling factor for both height & width
     #[arg(short, long, default_value_t = 1.0)]
     scaling: f64,
     /// Output file name. If supplied, outputs to file rather than to console.
-    #[arg(short='f', long="file", default_value_t = String::new())]
-    out_file: String,
+    #[arg(short='f', long="file")]
+    out_file: Option<String>,
     /// Prints help
     #[arg(short='H', long="help", action = clap::ArgAction::Help)]
     help: Option<bool>
@@ -40,10 +40,20 @@ fn main() {
     let args = Args::parse();
     let filename = args.filename;
     let invert = args.invert;
-    let width_scaling = args.width_scaling;
-    let height_scaling = args.height_scaling;
     let scaling = args.scaling;
-    let out_file = args.out_file;
+
+    let out_file = match args.out_file {
+        Some(val) => val,
+        None => String::new()
+    };
+    let width_scaling = match args.width_scaling {
+        Some(val) => val,
+        None => -1.0
+    };
+    let height_scaling = match args.height_scaling {
+        Some(val) => val,
+        None => -1.0
+    };
 
     let width_given = width_scaling > 0.0;
     let height_given = height_scaling > 0.0;
