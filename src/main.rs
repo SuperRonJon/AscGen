@@ -53,9 +53,15 @@ fn main() {
         None => -1.0,
     };
 
-    let width_given = width_scaling > 0.0;
-    let height_given = height_scaling > 0.0;
-    let even_scaling = !width_given && !height_given;
+    let width_valid = width_scaling > 0.0;
+    let height_valid = height_scaling > 0.0;
+    let even_scaling = !width_valid && !height_valid;
+    if !even_scaling && (!width_valid || !height_valid) {
+        println!(
+            "Invalid scaling parameters.\nIf not using equivalent scaling for height and width (-s) both height and width must be supplied and greater than 0."
+        );
+        return;
+    }
 
     let ascii_characters = ['@', '%', '#', '*', '+', '=', '-', ':', '.', ' '];
 
@@ -70,13 +76,6 @@ fn main() {
             return;
         }
     };
-
-    if !even_scaling && (width_scaling <= 0.0 || height_scaling <= 0.0) {
-        println!(
-            "Invalid scaling parameters.\nIf not using equivalent scaling for height and width (-s) both height and width must be supplied and greater than 0."
-        );
-        return;
-    }
 
     let w_scale = if even_scaling { args.scaling } else { width_scaling };
     let h_scale = if even_scaling { args.scaling } else { height_scaling };
@@ -101,13 +100,12 @@ fn image_to_string(img: &DynamicImage, character_set: &[char; 10], invert: bool)
         characters.reverse();
     }
 
-    for pixel in img.pixels() {
-        let brightness = get_brightness_value(&pixel.2);
-        let char_index = (brightness / (255.1 / characters.len() as f64)).floor() as usize;
+    for (x, _y, color) in img.pixels() {
+        let char_index = (get_brightness_value(&color) / (255.1 / characters.len() as f64)).floor() as usize;
 
         let brightness_char = characters[char_index];
         result.push(brightness_char);
-        if pixel.0 == img.width() - 1 {
+        if x == img.width() - 1 {
             result.push('\n');
         }
     }
@@ -118,12 +116,12 @@ fn get_image(filename: &String) -> Result<DynamicImage, ImageError> {
     return ImageReader::open(filename)?.decode();
 }
 
-fn get_brightness_value(p: &Rgba<u8>) -> f64 {
+fn get_brightness_value(color: &Rgba<u8>) -> f64 {
     let pr = 0.299;
     let pg = 0.587;
     let pb = 0.114;
 
-    let channels = p.channels();
+    let channels = color.channels();
     let red = channels[0] as i32;
     let green = channels[1] as i32;
     let blue = channels[2] as i32;
