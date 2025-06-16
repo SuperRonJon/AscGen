@@ -81,11 +81,11 @@ fn main() {
     let h_scale = if even_scaling { args.scaling } else { height_scaling };
 
     let scaled_image = scale_image(img, w_scale, h_scale);
-    let str = image_to_string(&scaled_image, &ascii_characters, args.invert);
+    let art_string = image_to_string(&scaled_image, &ascii_characters, args.invert);
     if out_file.is_empty() {
-        print!("{str}");
+        print!("{art_string}");
     } else {
-        match write_to_file(&out_file, &str) {
+        match write_to_file(&out_file, &art_string) {
             Ok(()) => println!("Ascii art written to {}", out_file),
             Err(err) => println!("Error writing to {}: {}", out_file, err),
         }
@@ -109,11 +109,11 @@ fn image_to_string(img: &DynamicImage, character_set: &[char; 10], invert: bool)
             result.push('\n');
         }
     }
-    return result;
+    result
 }
 
 fn get_image(filename: &String) -> Result<DynamicImage, ImageError> {
-    return ImageReader::open(filename)?.decode();
+    ImageReader::open(filename)?.decode()
 }
 
 fn get_brightness_value(color: &Rgba<u8>) -> f64 {
@@ -126,17 +126,14 @@ fn get_brightness_value(color: &Rgba<u8>) -> f64 {
     let green = channels[1] as i32;
     let blue = channels[2] as i32;
 
-    return ((pr * (red.pow(2)) as f64)
-        + (pg * (green.pow(2)) as f64)
-        + (pb * (blue.pow(2)) as f64))
-        .sqrt();
+    ((pr * (red.pow(2)) as f64) + (pg * (green.pow(2)) as f64) + (pb * (blue.pow(2)) as f64)).sqrt()
 }
 
 fn scale_image(img: DynamicImage, width_factor: f64, height_factor: f64) -> DynamicImage {
     let new_width = (img.width() as f64 * width_factor) as u32;
     let new_height = (img.height() as f64 * height_factor) as u32;
 
-    return img.resize_exact(new_width, new_height, Nearest);
+    img.resize_exact(new_width, new_height, Nearest)
 }
 
 fn write_to_file(output_file: &String, art_string: &String) -> io::Result<()> {
@@ -149,8 +146,5 @@ fn write_to_file(output_file: &String, art_string: &String) -> io::Result<()> {
     if !fs::exists(out_dir)? {
         fs::create_dir_all(out_dir)?;
     }
-    match fs::write(filepath, art_string) {
-        Ok(()) => Ok(()),
-        Err(error) => Err(error),
-    }
+    fs::write(filepath, art_string)
 }
