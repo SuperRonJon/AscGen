@@ -39,9 +39,6 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let filename = args.filename;
-    let invert = args.invert;
-    let scaling = args.scaling;
 
     let out_file = match args.out_file {
         Some(val) => val,
@@ -62,13 +59,12 @@ fn main() {
 
     let ascii_characters = ['@', '%', '#', '*', '+', '=', '-', ':', '.', ' '];
 
-    let img_result = get_image(&filename);
-    let img = match img_result {
-        Ok(file) => file,
+    let img = match get_image(&args.filename) {
+        Ok(image) => image,
         Err(error) => {
             println!(
                 "Error opening image file \"{}\": {}",
-                filename,
+                args.filename,
                 error.to_string()
             );
             return;
@@ -82,11 +78,11 @@ fn main() {
         return;
     }
 
-    let w_scale = if even_scaling { scaling } else { width_scaling };
-    let h_scale = if even_scaling { scaling } else { height_scaling };
+    let w_scale = if even_scaling { args.scaling } else { width_scaling };
+    let h_scale = if even_scaling { args.scaling } else { height_scaling };
 
     let scaled_image = scale_image(img, w_scale, h_scale);
-    let str = image_to_string(&scaled_image, &ascii_characters, invert);
+    let str = image_to_string(&scaled_image, &ascii_characters, args.invert);
     if out_file.is_empty() {
         print!("{str}");
     } else {
