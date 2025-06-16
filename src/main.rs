@@ -1,7 +1,7 @@
 use std::{
     fs::{self},
     io,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 use clap::Parser;
@@ -142,7 +142,7 @@ fn scale_image(img: DynamicImage, width_factor: f64, height_factor: f64) -> Dyna
 }
 
 fn write_to_file(output_file: &String, art_string: &String) -> io::Result<()> {
-    let filepath = PathBuf::from(output_file);
+    let filepath = Path::new(output_file);
     let out_dir = match filepath.parent() {
         Some(path) => path,
         None => Path::new(""),
@@ -151,7 +151,7 @@ fn write_to_file(output_file: &String, art_string: &String) -> io::Result<()> {
     if !fs::exists(out_dir)? {
         fs::create_dir_all(out_dir)?;
     }
-    match fs::write(filepath.as_path(), art_string) {
+    match fs::write(filepath, art_string) {
         Ok(()) => Ok(()),
         Err(error) => Err(error),
     }
