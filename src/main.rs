@@ -1,5 +1,7 @@
 use std::{
-    fs::{self}, io, path::{Path, PathBuf}
+    fs::{self},
+    io,
+    path::{Path, PathBuf},
 };
 
 use clap::Parser;
@@ -19,20 +21,20 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     invert: bool,
     /// Width Scaling Factor
-    #[arg(short='w', long="width")]
+    #[arg(short = 'w', long = "width")]
     width_scaling: Option<f64>,
     /// Height Scaling Factor
-    #[arg(short='h', long="height")]
+    #[arg(short = 'h', long = "height")]
     height_scaling: Option<f64>,
     /// Even scaling factor for both height & width
     #[arg(short, long, default_value_t = 1.0)]
     scaling: f64,
     /// Output file name. If supplied, outputs to file rather than to console.
-    #[arg(short='f', long="to-file")]
+    #[arg(short = 'f', long = "to-file")]
     out_file: Option<String>,
     /// Prints help
     #[arg(short='H', long="help", action = clap::ArgAction::Help)]
-    help: Option<bool>
+    help: Option<bool>,
 }
 
 fn main() {
@@ -43,15 +45,15 @@ fn main() {
 
     let out_file = match args.out_file {
         Some(val) => val,
-        None => String::new()
+        None => String::new(),
     };
     let width_scaling = match args.width_scaling {
         Some(val) => val,
-        None => -1.0
+        None => -1.0,
     };
     let height_scaling = match args.height_scaling {
         Some(val) => val,
-        None => -1.0
+        None => -1.0,
     };
 
     let width_given = width_scaling > 0.0;
@@ -89,8 +91,8 @@ fn main() {
         print!("{str}");
     } else {
         match write_to_file(&out_file, &str) {
-            Ok(()) => { println!("Ascii art written to {}", out_file); }
-            Err(err) => { println!("Error writing to {}: {}", out_file, err)}
+            Ok(()) => println!("Ascii art written to {}", out_file),
+            Err(err) => println!("Error writing to {}: {}", out_file, err),
         }
     }
 }
@@ -146,15 +148,15 @@ fn scale_image(img: DynamicImage, width_factor: f64, height_factor: f64) -> Dyna
 fn write_to_file(output_file: &String, art_string: &String) -> io::Result<()> {
     let filepath = PathBuf::from(output_file);
     let out_dir = match filepath.parent() {
-        Some(path) => { path }
-        None => { Path::new("") }
+        Some(path) => path,
+        None => Path::new(""),
     };
 
     if !fs::exists(out_dir)? {
         fs::create_dir_all(out_dir)?;
     }
     match fs::write(filepath.as_path(), art_string) {
-        Ok(()) => { Ok(()) }
-        Err(error) => { Err(error) }
+        Ok(()) => Ok(()),
+        Err(error) => Err(error),
     }
 }
