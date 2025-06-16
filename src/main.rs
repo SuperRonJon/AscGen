@@ -1,6 +1,5 @@
 use std::{
-    fs::{self},
-    path::PathBuf,
+    fs::{self}, io, path::{Path, PathBuf}
 };
 
 use clap::Parser;
@@ -29,7 +28,7 @@ struct Args {
     #[arg(short, long, default_value_t = 1.0)]
     scaling: f64,
     /// Output file name. If supplied, outputs to file rather than to console.
-    #[arg(short='f', long="file")]
+    #[arg(short='f', long="to-file")]
     out_file: Option<String>,
     /// Prints help
     #[arg(short='H', long="help", action = clap::ArgAction::Help)]
@@ -81,20 +80,18 @@ fn main() {
         return;
     }
 
-    let mut w_scale = width_scaling;
-    let mut h_scale = height_scaling;
-    if even_scaling {
-        w_scale = scaling;
-        h_scale = scaling;
-    }
+    let w_scale = if even_scaling { scaling } else { width_scaling };
+    let h_scale = if even_scaling { scaling } else { height_scaling };
 
     let scaled_image = scale_image(img, w_scale, h_scale);
     let str = image_to_string(&scaled_image, &ascii_characters, invert);
     if out_file.is_empty() {
-        print!("{}", str);
+        print!("{str}");
     } else {
-        write_to_file(&out_file, &str);
-        println!("Ascii art written to {}", out_file);
+        match write_to_file(&out_file, &str) {
+            Ok(()) => { println!("Ascii art written to {}", out_file); }
+            Err(err) => { println!("Error writing to {}: {}", out_file, err)}
+        }
     }
 }
 
@@ -146,18 +143,18 @@ fn scale_image(img: DynamicImage, width_factor: f64, height_factor: f64) -> Dyna
     return img.resize_exact(new_width, new_height, Nearest);
 }
 
-fn write_to_file(output_file: &String, art_string: &String) {
+fn write_to_file(output_file: &String, art_string: &String) -> io::Result<()> {
     let filepath = PathBuf::from(output_file);
-    let out_dir = filepath.parent().unwrap();
-    if !fs::exists(out_dir).expect("Error parsing output filepath...") {
-        let create_result = fs::create_dir_all(out_dir);
-        match create_result {
-            Ok(()) => {}
-            Err(error) => {
-                println!("Error creating output directory: {}", error);
-                return;
-            }
-        }
+    let out_dir = match filepath.parent() {
+        Some(path) => { path }
+        None => { Path::new("") }
+    };
+
+    if !fs::exists(out_dir)? {
+        fs::create_dir_all(out_dir)?;
     }
-    fs::write(filepath.as_path(), art_string).expect("Error writing to file...");
+    match fs::write(filepath.as_path(), art_string) {
+        Ok(()) => { Ok(()) }
+        Err(error) => { Err(error) }
+    }
 }
