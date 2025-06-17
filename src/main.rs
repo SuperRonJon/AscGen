@@ -125,8 +125,10 @@ fn get_brightness_value(color: &Rgba<u8>) -> f64 {
     let red = channels[0] as i32;
     let green = channels[1] as i32;
     let blue = channels[2] as i32;
+    let alpha = channels[3] as i32;
 
-    ((pr * (red.pow(2)) as f64) + (pg * (green.pow(2)) as f64) + (pb * (blue.pow(2)) as f64)).sqrt()
+    let brightness = ((pr * (red.pow(2)) as f64) + (pg * (green.pow(2)) as f64) + (pb * (blue.pow(2)) as f64)).sqrt();
+    brightness * (alpha as f64 / 255.0)
 }
 
 fn scale_image(img: DynamicImage, width_factor: f64, height_factor: f64) -> DynamicImage {
