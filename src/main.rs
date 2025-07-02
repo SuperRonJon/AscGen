@@ -57,7 +57,7 @@ fn main() {
     let height_valid = height_scaling > 0.0;
     let even_scaling = !width_valid && !height_valid;
     if !even_scaling && (!width_valid || !height_valid) {
-        println!(
+        eprintln!(
             "Invalid scaling parameters.\nIf not using equivalent scaling for height and width (-s) both height and width must be supplied and greater than 0."
         );
         return;
@@ -68,7 +68,7 @@ fn main() {
     let img = match get_image(&args.filename) {
         Ok(image) => image,
         Err(error) => {
-            println!(
+            eprintln!(
                 "Error opening image file \"{}\": {}",
                 args.filename,
                 error.to_string()
@@ -87,7 +87,7 @@ fn main() {
     } else {
         match write_to_file(&out_file, &art_string) {
             Ok(()) => println!("Ascii art written to {}", out_file),
-            Err(err) => println!("Error writing to {}: {}", out_file, err),
+            Err(err) => eprintln!("Error writing to {}: {}", out_file, err),
         }
     }
 }
