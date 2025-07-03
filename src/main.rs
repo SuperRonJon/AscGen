@@ -27,8 +27,8 @@ struct Args {
     #[arg(short = 'h', long = "height")]
     height_scaling: Option<f64>,
     /// Even scaling factor for both height & width
-    #[arg(short, long, default_value_t = 1.0)]
-    scaling: f64,
+    #[arg(short, long)]
+    scaling: Option<f64>,
     /// Output file name. If supplied, outputs to file rather than to console.
     #[arg(short = 'f', long = "to-file")]
     out_file: Option<String>,
@@ -51,6 +51,10 @@ fn main() {
     let height_scaling = match args.height_scaling {
         Some(val) => val,
         None => -1.0,
+    };
+    let scaling = match args.scaling {
+        Some(val) => val,
+        None => 1.0,
     };
 
     let width_valid = width_scaling > 0.0;
@@ -77,10 +81,15 @@ fn main() {
         }
     };
 
-    let w_scale = if even_scaling { args.scaling } else { width_scaling };
-    let h_scale = if even_scaling { args.scaling } else { height_scaling };
+    let w_scale = if even_scaling { scaling } else { width_scaling };
+    let h_scale = if even_scaling { scaling } else { height_scaling };
 
-    let scaled_image = scale_image(img, w_scale, h_scale);
+    let scaled_image = if w_scale != 1.0 || h_scale != 1.0 {
+        scale_image(img, w_scale, h_scale)
+    } else { 
+        img 
+    };
+
     let art_string = image_to_string(&scaled_image, &ascii_characters, args.invert);
     if out_file.is_empty() {
         print!("{art_string}");
@@ -101,7 +110,8 @@ fn image_to_string(img: &DynamicImage, character_set: &[char; 10], invert: bool)
     }
 
     for (x, _y, color) in img.pixels() {
-        let char_index = (get_brightness_value(&color) / (255.1 / characters.len() as f64)).floor() as usize;
+        let char_index =
+            (get_brightness_value(&color) / (255.1 / characters.len() as f64)).floor() as usize;
 
         let brightness_char = characters[char_index];
         result.push(brightness_char);
@@ -127,7 +137,9 @@ fn get_brightness_value(color: &Rgba<u8>) -> f64 {
     let blue = channels[2] as i32;
     let alpha = channels[3] as i32;
 
-    let brightness = ((pr * (red.pow(2)) as f64) + (pg * (green.pow(2)) as f64) + (pb * (blue.pow(2)) as f64)).sqrt();
+    let brightness =
+        ((pr * (red.pow(2)) as f64) + (pg * (green.pow(2)) as f64) + (pb * (blue.pow(2)) as f64))
+            .sqrt();
     brightness * (alpha as f64 / 255.0)
 }
 
