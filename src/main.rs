@@ -101,10 +101,10 @@ fn main() {
     }
 }
 
-fn image_to_string(img: &DynamicImage, character_set: &[char; 10], invert: bool) -> String {
+fn image_to_string(img: &DynamicImage, character_set: &[char], invert: bool) -> String {
     let char_count = ((img.width() * img.height()) + img.height()) as usize;
     let mut result = String::with_capacity(char_count);
-    let mut characters = character_set.clone();
+    let mut characters = character_set.to_vec();
     if invert {
         characters.reverse();
     }
@@ -122,7 +122,7 @@ fn image_to_string(img: &DynamicImage, character_set: &[char; 10], invert: bool)
     result
 }
 
-fn get_image(filename: &String) -> Result<DynamicImage, ImageError> {
+fn get_image(filename: &str) -> Result<DynamicImage, ImageError> {
     ImageReader::open(filename)?.decode()
 }
 
@@ -150,7 +150,7 @@ fn scale_image(img: DynamicImage, width_factor: f64, height_factor: f64) -> Dyna
     img.resize_exact(new_width, new_height, Nearest)
 }
 
-fn write_to_file(output_file: &String, art_string: &String) -> io::Result<()> {
+fn write_to_file(output_file: &str, art_string: &str) -> io::Result<()> {
     let filepath = Path::new(output_file);
     let out_dir = match filepath.parent() {
         Some(path) => path,
